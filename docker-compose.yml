@@ -31,6 +31,7 @@ services:
             REPLICATION_DB: replication_db # default is replication_db
             REPLICATION_USER: replication_user # default is replication_user
             REPLICATION_PASSWORD: replication_pass # default is replication_pass
+            REPMGR_PRIORITY: 100
         ports:
             - 5432:5432
         networks:
@@ -49,6 +50,7 @@ services:
             NODE_NAME: node2
             CLUSTER_NODE_NETWORK_NAME: pgslave1 # (default: hostname of the node)
             REPLICATION_UPSTREAM_NODE_ID: 1
+            REPMGR_PRIORITY: 100
         ports:
             - 5441:5432
         networks:
@@ -67,7 +69,8 @@ services:
             NODE_ID: 3
             NODE_NAME: node3
             CLUSTER_NODE_NETWORK_NAME: pgslave2 # (default: hostname of the node)
-            REPLICATION_UPSTREAM_NODE_ID: 2
+            REPLICATION_UPSTREAM_NODE_ID: 1
+            REPMGR_PRIORITY: 100
         ports:
             - 5442:5432
         networks:
@@ -87,6 +90,7 @@ services:
             NODE_NAME: node4
             CLUSTER_NODE_NETWORK_NAME: pgslave3 # (default: hostname of the node)
             REPLICATION_UPSTREAM_NODE_ID: 1
+            REPMGR_PRIORITY: 101
         ports:
             - 5443:5432
         networks:
@@ -104,44 +108,11 @@ services:
             NODE_ID: 5
             NODE_NAME: node5
             CLUSTER_NODE_NETWORK_NAME: pgslave4 # (default: hostname of the node)
-            REPLICATION_UPSTREAM_NODE_ID: 4
+            REPLICATION_UPSTREAM_NODE_ID: 1
+            REPMGR_PRIORITY: 100
         ports:
             - 5444:5432
         networks:
             cluster:
                 aliases:
                     - pgslave4
-#>>> Branch 2
-    pgpool:
-#        image: paunin/postgresql-cluster-pgpool
-        build:
-            context: .
-            dockerfile: Pgpool.Dockerfile
-        environment:
-            PCP_USER: pcp_user
-            PCP_PASSWORD: pcp_pass
-            WAIT_BACKEND_TIMEOUT: 60
-
-            CHECK_USER: monkey_user
-            CHECK_PASSWORD: monkey_pass
-            CHECK_PGCONNECT_TIMEOUT: 3 #timout for checking if primary node is healthy
-
-            DB_USERS: monkey_user:monkey_pass # in format user:password[,user:password[...]]
-            BACKENDS: "0:pgmaster:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,1:pgslave1::::,2:pgslave2::::,3:pgslave3::::" #,4:pgslaveDOES_NOT_EXIST::::
-                      # in format num:host:port:weight:data_directory:flag[,...]
-                      # defaults:
-                      #   port: 5432
-                      #   weight: 1
-                      #   data_directory: /var/lib/postgresql/data
-                      #   flag: ALLOW_TO_FAILOVER
-            REQUIRE_MIN_BACKENDS: 3 # minimal number of backends to start pgpool (some might be unreachable)
-            CONFIGS: "num_init_children:250,max_pool:4"
-                      # in format variable1:value1[,variable2:value2[,...]]
-                      # used for pgpool.conf file
-        ports:
-            - 5430:5432
-            - 9898:9898 # PCP
-        networks:
-            cluster:
-                aliases:
-                    - pgpool
