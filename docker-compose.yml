@@ -6,6 +6,8 @@ networks:
 services:
     pgmaster:
 #        image: paunin/postgresql-cluster-pgsql
+        cap_add:
+          - ALL
         build:
             context: .
             dockerfile: Pgsql.Dockerfile
@@ -41,6 +43,8 @@ services:
 #<<< Branch 1
     pgslave1:
 #        image: paunin/postgresql-cluster-pgsql
+        cap_add:
+          - ALL
         build:
             context: .
             dockerfile: Pgsql.Dockerfile
@@ -61,6 +65,8 @@ services:
     # Add more slaves if required
     pgslave2:
 #        image: paunin/postgresql-cluster-pgsql
+        cap_add:
+          - ALL
         build:
             context: .
             dockerfile: Pgsql.Dockerfile
@@ -81,6 +87,8 @@ services:
 #<<< Branch 2
     pgslave3:
 #        image: paunin/postgresql-cluster-pgsql
+        cap_add:
+          - ALL
         build:
             context: .
             dockerfile: Pgsql.Dockerfile
@@ -100,6 +108,8 @@ services:
 
     pgslave4:
 #        image: paunin/postgresql-cluster-pgsql
+        cap_add:
+          - ALL
         build:
             context: .
             dockerfile: Pgsql.Dockerfile
