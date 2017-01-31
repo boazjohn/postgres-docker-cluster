@@ -15,7 +15,9 @@ The master is kept with a higher priority with the `nopreempt` option on. The fi
 * node3 will be kept as async unless and until node2 fails
 
 > psql -c \"ALTER SYSTEM SET synchronous_standby_names TO 'node2,node3';\"
+
 > psql -c \"select pg_reload_conf();\""
+
 > psql -c \"SELECT application_name, sync_state FROM pg_stat_replication;\"
 
 #### finding out how far a slave is behind master
