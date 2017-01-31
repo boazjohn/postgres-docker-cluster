@@ -14,15 +14,6 @@ check_pid_file() {
 	return $?
 }
 
-# return 0 if $1 is a valid listened port
-check_listen_port() {
-	local port="$1"
-	[[ -z "${port}" ]] && return 1
-	local result=`netstat -nalp | grep "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}:${_p} "`
-	[[ $? -le 0 ]] && [[ -n "${result}" ]] && return 0
-	return 1
-}
-
 exit_err() {
 	message="${1:-Unknown}"
 	echo `date`"${0}.${_svc} ${message}" >> "${LOG}"
