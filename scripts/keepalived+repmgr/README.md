@@ -9,7 +9,33 @@ These template scripts will allow you to do this following:
 - Setup an automatic failover through keepalived and repmgr (without repmgrd)
 - Setup barman
 
-# Failover mechanism
+# Setting up repmgr
+
+We'll setup a single master, multiple standby cluster.
+
+* Setup `repmgr.conf` for master (given sample)
+* Setup `postgresql.conf` for master (given sample)
+* Create a repmgr user
+> createuser -s repmgr
+* Create a repmgr db
+> createdb repmgr -O repmgr
+* Ensure the repmgr user has appropriate permissions in `pg_hba.conf` (given sample) and can connect in replication mode
+* Register the master
+> repmgr -f repmgr.conf master register
+* Setup `repmgr.conf` for standby (given sample)
+* Clone the standby
+> repmgr -h repmgr_node1 -U repmgr -d repmgr -D /path/to/node2/data/ -f /etc/repmgr.conf standby clone
+* Register the standby
+> repmgr -f /etc/repmgr.conf standby register
+
+Rinse and repeat for any more standbys.
+
+# Setting up keepalived
+
+* Install keepalived
+* There are 3 keepalived.conf files provided. 1 is master, the other two are primary and secondary standbys
+
+## Failover mechanism
 
 The master is kept with a higher priority with the `nopreempt` option on. The standbys *will not* have the `nopreempt` option. The first standby (preferably sync) will have a lower priority. The secondary standby has an even lower priority. There are appropriate scripts in this repository that need to also be deployed for the failover to take place. These scripts include: health check, master promotion, standby follow.
 
@@ -32,7 +58,7 @@ The master is kept with a higher priority with the `nopreempt` option on. The st
 
 > psql -c \"SELECT application_name, sync_state FROM pg_stat_replication;\"
 
-#### finding out how far a slave is behind master
+### finding out how far a slave is behind master
 
 > psql -c \"SELECT pg_catalog.pg_last_xlog_receive_location();"
 
@@ -44,9 +70,6 @@ The master is kept with a higher priority with the `nopreempt` option on. The st
 
 * restart keepalived
 > systemcttl restart keepalived.service
-
-
-
 
 * try to boot it up
 * if it cannot catch up, run a clone
